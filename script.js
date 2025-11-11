@@ -1,21 +1,28 @@
 let KAOMOJI_DATA = {};
-
-// Define category groups
-const CATEGORY_GROUPS = {
-    "Positivity": ["joy", "happy", "love", "excitement", "celebration", "greeting"],
-    "Negativity": ["sad", "anger", "apology", "confusion"],
-    "Expressions": ["surprise", "shy", "sleepy", "cool"],
-    "Themes": ["animal", "food", "music"]
-};
+let CATEGORY_GROUPS = {};
 
 // Load kaomoji data from JSON file
 async function loadKaomojiData() {
     try {
         const response = await fetch('kaomoji-data.json');
-        KAOMOJI_DATA = await response.json();
+        const data = await response.json();
+
+        // Transform the JSON structure to match expected format
+        KAOMOJI_DATA = {};
+        CATEGORY_GROUPS = {};
+
+        data.forEach(group => {
+            const groupName = group.name;
+            CATEGORY_GROUPS[groupName] = [];
+
+            group.categories.forEach(category => {
+                const categoryKey = category.name.toLowerCase();
+                CATEGORY_GROUPS[groupName].push(categoryKey);
+                KAOMOJI_DATA[categoryKey] = category.emoticons;
+            });
+        });
     } catch (error) {
         console.error('Error loading kaomoji data:', error);
-        KAOMOJI_DATA = {};
     }
 }
 
